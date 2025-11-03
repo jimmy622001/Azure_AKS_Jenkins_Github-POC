@@ -1,0 +1,53 @@
+# Example terraform.tfvars for DR Pilot Light environment
+# Rename to terraform.tfvars and update with your values
+
+# Core Infrastructure 
+resource_group_name = "aks-jenkins-dr-rg"
+location            = "westus2"  # Different region from production
+
+# Custom Tags
+common_tags = {
+  Environment = "DR-PilotLight"
+  Project     = "AKS-Jenkins-GitHub"
+  ManagedBy   = "Terraform"
+  Owner       = "YourTeamName"
+  IsDisasterRecovery = "true"
+}
+
+# Network Configuration
+vnet_name          = "aks-dr-vnet"
+vnet_address_space = ["10.2.0.0/16"]  # Different CIDR from production
+
+# AKS Configuration - minimal for DR
+cluster_name        = "aks-jenkins-dr-cluster"
+kubernetes_version  = "1.27.3"  # Same as production for compatibility
+node_pool_vm_size   = "Standard_D2s_v3"  # Smaller for cost efficiency
+node_pool_count     = 1  # Minimal for pilot light
+node_pool_max_count = 8  # Same as production for full failover capacity
+node_pool_min_count = 1  # Minimal for pilot light
+
+# Database Configuration - replica from production
+postgres_server_name   = "aks-jenkins-dr-postgres"
+postgres_sku_name      = "GP_Gen5_2"  # Smaller for DR until scale-up
+postgres_version       = "11"  # Same as production
+postgres_storage_mb    = 10240  # Same as production for full data capacity
+postgres_db_name       = "appdb"
+postgres_admin_user    = "postgresadmin"
+postgres_admin_password = "YourSecureDRPasswordHere" # Change this!
+
+# CI/CD Configuration - minimal for DR
+acr_name           = "aksjenkindsdracr"
+jenkins_vm_name    = "jenkins-dr-vm"
+jenkins_vm_size    = "Standard_D2s_v3"  # Smaller for cost efficiency
+jenkins_admin_user = "jenkins"
+jenkins_ssh_key    = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8jHskc2YY2Cl6gH4c72D2X3Fv6/EAmQT8d2+XXekYOc2UcGKKZYhBkzxGcqxnhkFW+CpAMmqjnrq1R+RMOQZJYHCJQvNMvZwgpkfB8mMP4b79OzkSYwn7MKkLlfLYFv75jLRCNrofcEFwltOKxUcQ92dFI6Upb5OQoOLeTpkO8kISk/hdPka3j4n9RzUGR7NRaozXX+LbIg1jTF0apkD7heUITkeH0bQNnXZ1hLGRA8HhfxUERUnZ5j2cSCQ/e+dg4cO/acImmqtY/Fzqr8IMtCgk6XUNeZCFQT9H1OaSQb4/+HUcS0InsyPnIc7jQoyN9ddEJBtBVbENWA0zGCmB dummy@example.com"
+
+# Security Configuration
+key_vault_name = "aks-jenkins-dr-kv"
+
+# Monitoring Configuration
+log_analytics_workspace_name = "aks-jenkins-dr-analytics"
+
+# DR-specific Settings
+is_active                   = false  # Set to true during DR activation
+failover_mode               = "pilot-light"  # Options: pilot-light, warm-standby, hot-standby

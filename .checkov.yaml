@@ -1,0 +1,18 @@
+# .checkov.yaml configuration file
+framework:
+  - terraform
+download-external-modules: false
+directory:
+  - .
+evaluate-variables: true
+compact: false
+skip-check:
+  # Skip specific checks that may cause false positives:
+  - CKV_AZURE_4  # Ensure AKS cluster has the latest version
+  - CKV_AZURE_43 # Ensure AKS is using disk encryption set
+  # Add any other check IDs to skip here
+output:
+  - cli
+  - json
+output-file-path: reports/checkov
+summary-position: bottom

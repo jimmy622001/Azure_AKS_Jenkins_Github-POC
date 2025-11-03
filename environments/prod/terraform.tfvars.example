@@ -1,0 +1,49 @@
+# Example terraform.tfvars for prod environment
+# Rename to terraform.tfvars and update with your values
+
+# Core Infrastructure 
+resource_group_name = "aks-jenkins-prod-rg"
+location            = "eastus"
+
+# Custom Tags
+common_tags = {
+  Environment = "Production"
+  Project     = "AKS-Jenkins-GitHub"
+  ManagedBy   = "Terraform"
+  Owner       = "YourTeamName"
+  CostCenter  = "10001"
+}
+
+# Network Configuration
+vnet_name          = "aks-prod-vnet"
+vnet_address_space = ["10.1.0.0/16"]
+
+# AKS Configuration
+cluster_name        = "aks-jenkins-prod-cluster"
+kubernetes_version  = "1.27.3"
+node_pool_vm_size   = "Standard_D4s_v3"
+node_pool_count     = 3
+node_pool_max_count = 8
+node_pool_min_count = 3
+
+# Database Configuration
+postgres_server_name   = "aks-jenkins-prod-postgres"
+postgres_sku_name      = "GP_Gen5_4"
+postgres_version       = "11"
+postgres_storage_mb    = 10240
+postgres_db_name       = "appdb"
+postgres_admin_user    = "postgresadmin"
+postgres_admin_password = "YourSecureProductionPasswordHere" # Change this!
+
+# CI/CD Configuration
+acr_name           = "aksjenkinsprodacr"
+jenkins_vm_name    = "jenkins-prod-vm"
+jenkins_vm_size    = "Standard_D4s_v3"
+jenkins_admin_user = "jenkins"
+jenkins_ssh_key    = "ssh-rsa AAAA...your-public-key-here..." # Replace with your SSH public key
+
+# Security Configuration
+key_vault_name = "aks-jenkins-prod-kv"
+
+# Monitoring Configuration
+log_analytics_workspace_name = "aks-jenkins-prod-analytics"
