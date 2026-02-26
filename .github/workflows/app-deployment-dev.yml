@@ -1,0 +1,59 @@
+name: 'Development Application Deployment'
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'app/**'
+  workflow_dispatch:
+
+jobs:
+  deploy-app-dev:
+    name: 'Deploy to Development'
+    runs-on: ubuntu-latest
+    env:
+      ACR_NAME: ${{ secrets.ACR_NAME }}
+      ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ env.AZURE_CREDENTIALS }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and push image to ACR
+      uses: docker/build-push-action@v4
+      with:
+        context: ./app
+        push: true
+        tags: ${{ env.ACR_LOGIN_SERVER }}/myapp:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Set up kubelogin for non-interactive login
+      uses: azure/use-kubelogin@v1
+      with:
+        kubelogin-version: 'v0.0.25'
+
+    - name: Set up Kubernetes context
+      uses: azure/k8s-set-context@v3
+      with:
+        method: service-principal
+        k8s-url: ${{ secrets.AKS_DEV_API_SERVER_URL }}
+        k8s-secret: ${{ secrets.AKS_DEV_SECRET }}
+
+    - name: Deploy to AKS
+      uses: azure/k8s-deploy@v4
+      with:
+        namespace: development
+        manifests: ./app/k8s/dev/deployment.yaml
+        images: ${{ env.ACR_LOGIN_SERVER }}/myapp:${{ github.sha }}
+        kubectl-version: latest

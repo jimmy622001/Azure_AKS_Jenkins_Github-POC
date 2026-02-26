@@ -1,0 +1,60 @@
+name: 'Development Infrastructure Deployment'
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'environments/dev/**'
+      - 'modules/**'
+  workflow_dispatch:
+    inputs:
+      plan_only:
+        description: 'Plan only (no apply)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  terraform-dev:
+    name: 'Development Terraform Deployment'
+    runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Terraform Format Check
+      run: terraform fmt -check -recursive
+      continue-on-error: true
+
+    - name: Terraform Init
+      working-directory: ./environments/dev
+      run: terraform init
+    
+    - name: Terraform Validate
+      working-directory: ./environments/dev
+      run: terraform validate
+
+    - name: Terraform Plan
+      working-directory: ./environments/dev
+      run: terraform plan -out=tfplan
+      
+    - name: Terraform Apply
+      working-directory: ./environments/dev
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.plan_only == 'false'
+      run: terraform apply -auto-approve tfplan

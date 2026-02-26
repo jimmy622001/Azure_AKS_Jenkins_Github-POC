@@ -1,0 +1,69 @@
+# Development Environment Configuration - EXAMPLE FILE
+# Copy this file to terraform.tfvars and fill in your actual values
+
+# General
+project_name = "aks-jenkins-github"
+environment  = "dev"
+location     = "eastus2"
+tags = {
+  Environment = "Development"
+  Project     = "AKS-Jenkins-GitHub"
+  Owner       = "DevOps Team"
+  ManagedBy   = "Terraform"
+}
+
+# Azure Network Configuration
+vnet_address_space   = ["10.0.0.0/16"]
+aks_subnet_cidr      = ["10.0.0.0/22"]
+jenkins_subnet_cidr  = ["10.0.4.0/24"]
+database_subnet_cidr = ["10.0.5.0/24"]
+
+# AKS Configuration
+kubernetes_version  = "1.27.3"
+aks_node_count      = 2
+aks_vm_size         = "Standard_D2s_v3"
+aks_max_pods        = 30
+enable_auto_scaling = true
+aks_min_nodes       = 1
+aks_max_nodes       = 3
+aks_network_plugin  = "azure"
+
+# Azure Database for PostgreSQL Configuration
+db_sku_name              = "GP_Gen5_2"
+db_storage_mb            = 5120
+db_backup_retention_days = 7
+db_geo_redundant_backup  = false
+db_auto_grow             = true
+db_admin_username        = "postgres"
+# *** SENSITIVE VALUE - DO NOT COMMIT ACTUAL PASSWORD ***
+# db_admin_password       = "FETCH_FROM_KEYVAULT"
+
+# Jenkins VM Configuration
+jenkins_vm_size = "Standard_D2s_v3"
+admin_username  = "azureuser"
+# *** SENSITIVE VALUE - DO NOT COMMIT ACTUAL SSH KEY ***
+# ssh_public_key = "FETCH_FROM_KEYVAULT"
+
+# GitHub Integration
+github_owner             = "yourorganization"
+github_token_secret_name = "github-token"
+github_repositories      = ["app-repo-1", "app-repo-2"]
+
+# Monitoring Configuration
+log_analytics_retention_days = 30
+enable_container_insights    = true
+enable_network_watcher       = true
+
+# Security Configuration
+enable_ddos_protection   = false # Set to true for production
+enable_bastion           = true
+enable_azure_firewall    = false # Set to true for stricter security
+enable_service_endpoints = true
+
+# Backup Configuration
+enable_vm_backup      = true
+backup_retention_days = 7
+
+# Other Settings
+enable_diagnostics = true
+resource_prefix    = "dev"
