@@ -1,4 +1,4 @@
-# Azure AKS Jenkins GitHub Infrastructure
+# Azure AKS Jenkins GitHub Infrastructure POC
 
 This repository contains Terraform code to deploy and manage a complete infrastructure for running applications on Azure Kubernetes Service (AKS) with Jenkins for CI/CD, integrated with GitHub for source control.
 

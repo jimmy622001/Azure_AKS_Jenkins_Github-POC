@@ -1,5 +1,28 @@
 # Security Policy
 
+## Recent Security Improvements (Latest Update)
+
+### Secret Management Enhancement
+We have recently implemented significant security improvements to address potential secret exposure:
+
+- **Azure Key Vault Integration**: Implemented secure secret retrieval using Azure Key Vault data sources
+- **Sensitive Variable Handling**: Added proper `sensitive()` function usage to prevent secret exposure in logs
+- **Separated Configuration**: Created dedicated `secrets.tf` file for secure secret management
+- **Lifecycle Validations**: Added validation rules to ensure secrets are not empty before deployment
+
+### Files Modified
+- `main.tf`: Updated to use secure secret references through local variables
+- `variables.tf`: Added sensitive variable declarations with proper documentation
+- `secrets.tf`: New file containing Azure Key Vault data sources and secure local values
+- Enhanced module dependencies to ensure proper secret retrieval order
+
+### Usage Requirements
+1. Create required secrets in Azure Key Vault:
+   - `postgres-admin-password`
+   - `jenkins-ssh-public-key`
+2. Ensure terraform service principal has Key Vault access permissions
+3. Deploy security module first to create Key Vault infrastructure
+
 ## Supported Versions
 
 Use this section to tell people about which versions of your project are currently being supported with security updates.

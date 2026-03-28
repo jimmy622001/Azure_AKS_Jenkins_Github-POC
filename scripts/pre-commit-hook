@@ -1,0 +1,81 @@
+#!/bin/sh
+
+# Pre-commit hook to detect and prevent committing of sensitive information
+# Copy this to .git/hooks/pre-commit to enable
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+echo "${YELLOW}Checking for sensitive data in commit...${NC}"
+
+# Check for private keys
+private_keys=$(git diff --cached --name-only | xargs grep -l "PRIVATE KEY" 2>/dev/null)
+if [ -n "$private_keys" ]; then
+  echo "${RED}ERROR: Potential private key(s) found in:${NC}"
+  echo "$private_keys"
+  exit 1
+fi
+
+# Check for AWS access keys
+aws_keys=$(git diff --cached --name-only | xargs grep -l -E "AWS_ACCESS_KEY_ID|aws_access_key_id|AWS_SECRET_ACCESS_KEY|aws_secret_access_key" 2>/dev/null)
+if [ -n "$aws_keys" ]; then
+  echo "${RED}ERROR: Potential AWS access key(s) found in:${NC}"
+  echo "$aws_keys"
+  exit 1
+fi
+
+# Check for Azure secrets
+azure_secrets=$(git diff --cached --name-only | xargs grep -l -E "AZURE_STORAGE_ACCOUNT|AZURE_STORAGE_KEY|AZURE_CLIENT_ID|AZURE_CLIENT_SECRET" 2>/dev/null)
+if [ -n "$azure_secrets" ]; then
+  echo "${RED}ERROR: Potential Azure secret(s) found in:${NC}"
+  echo "$azure_secrets"
+  exit 1
+fi
+
+# Check for passwords
+passwords=$(git diff --cached --name-only | xargs grep -l -E "password|Password|PASSWORD|passwd|Passwd|PASSWD|pwd|Pwd|PWD" 2>/dev/null)
+if [ -n "$passwords" ]; then
+  echo "${YELLOW}WARNING: Potential password(s) found in:${NC}"
+  echo "$passwords"
+  echo "${YELLOW}Ensure these are not real passwords before committing.${NC}"
+  read -p "Continue with commit? (y/n) " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
+fi
+
+# Check for certificate files
+cert_files=$(git diff --cached --name-only | grep -E "\.(pem|key|p12|pfx|crt)$" 2>/dev/null)
+if [ -n "$cert_files" ]; then
+  echo "${RED}ERROR: Potential certificate/key file(s) found:${NC}"
+  echo "$cert_files"
+  exit 1
+fi
+
+# Check for direct tfvars files (not examples)
+tfvars_files=$(git diff --cached --name-only | grep -E "\.tfvars$" | grep -v "\.example$" 2>/dev/null)
+if [ -n "$tfvars_files" ]; then
+  echo "${RED}ERROR: terraform.tfvars file(s) should not be committed directly:${NC}"
+  echo "$tfvars_files"
+  echo "${YELLOW}Use terraform.tfvars.example files instead.${NC}"
+  exit 1
+fi
+
+# Check for large files (>10MB)
+for file in $(git diff --cached --name-only); do
+  if [ -f "$file" ]; then
+    file_size=$(du -k "$file" | cut -f1)
+    if [ "$file_size" -gt 10240 ]; then
+      echo "${RED}ERROR: File too large to commit: $file ($file_size KB)${NC}"
+      echo "Consider using Git LFS for large files or add to .gitignore."
+      exit 1
+    fi
+  fi
+done
+
+echo "${GREEN}No obvious sensitive data found in commit.${NC}"
+exit 0
