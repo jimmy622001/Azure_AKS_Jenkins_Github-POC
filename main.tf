@@ -56,9 +56,9 @@ module "security" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   project             = "aks-jenkins"
-  environment         = "dev"
-  app_gateway_id      = "dummy-id" # Replace with actual ID when available
-  app_gateway_subnet_cidr = "10.0.6.0/24"
+  environment         = var.environment
+  app_gateway_id      = var.app_gateway_id
+  app_gateway_subnet_cidr = var.app_gateway_subnet_cidr
   subnet_ids          = [module.network.aks_subnet_id, module.network.jenkins_subnet_id]
 }
 
@@ -76,7 +76,7 @@ module "aks" {
   subnet_id                = module.network.aks_subnet_id
   aks_identity_id          = module.identity.aks_identity_id
   key_vault_id             = module.security.key_vault_id
-  acr_id                   = "dummy-acr-id" # Will be updated to module.cicd.acr_id when CICD module is ready
+  acr_id                   = var.acr_id
   tags                     = var.common_tags
   depends_on               = [module.network, module.identity, module.security]
 }
@@ -93,7 +93,7 @@ module "database" {
   postgres_storage_mb   = var.postgres_storage_mb
   postgres_db_name      = var.postgres_db_name
   postgres_admin_user   = var.postgres_admin_user
-  postgres_admin_password = var.postgres_admin_password
+  postgres_admin_password = local.postgres_admin_password
   subnet_id             = module.network.db_subnet_id
   depends_on            = [module.network]
 }
@@ -108,7 +108,7 @@ module "cicd" {
   jenkins_vm_name     = var.jenkins_vm_name
   jenkins_vm_size     = var.jenkins_vm_size
   jenkins_admin_user  = var.jenkins_admin_user
-  jenkins_ssh_key     = var.jenkins_ssh_key
+  jenkins_ssh_key     = local.jenkins_ssh_key
   subnet_id           = module.network.jenkins_subnet_id
   aks_cluster_id      = module.aks.cluster_id
   depends_on          = [module.network]

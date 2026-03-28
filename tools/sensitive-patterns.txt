@@ -1,0 +1,10 @@
+# SSH keys pattern
+ssh_private_key = "-----BEGIN RSA PRIVATE KEY-----(.|\n)*?-----END RSA PRIVATE KEY-----"
+dummy_key = "-----BEGIN RSA PRIVATE KEY-----(.|\n)*?-----END RSA PRIVATE KEY-----"
+
+# Public key patterns
+pub_key = "ssh-rsa [A-Za-z0-9+/=]+"
+
+# Password patterns
+postgres_password = "[a-zA-Z0-9!@#$%^&*()-_=+]{8,}"
+admin_pwd = "[a-zA-Z0-9!@#$%^&*()-_=+]{8,}"
