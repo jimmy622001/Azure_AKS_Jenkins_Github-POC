@@ -1,6 +1,18 @@
 # Variables for Root Module
 
 # Core Infrastructure Variables
+variable "project_name" {
+  description = "Project name"
+  type        = string
+  default     = "aks-jenkins-github"
+}
+
+variable "environment" {
+  description = "Deployment environment name"
+  type        = string
+  default     = "dev"
+}
+
 variable "resource_group_name" {
   description = "Name of the resource group"
   type        = string
@@ -144,11 +156,10 @@ variable "postgres_admin_user" {
   description = "PostgreSQL admin username"
   type        = string
   default     = "postgresadmin"
-  sensitive   = true
 }
 
 variable "postgres_admin_password" {
-  description = "PostgreSQL admin password"
+  description = "PostgreSQL admin password (should be fetched from Key Vault)"
   type        = string
   sensitive   = true
 }
@@ -179,21 +190,42 @@ variable "jenkins_admin_user" {
 }
 
 variable "jenkins_ssh_key" {
-  description = "SSH key for Jenkins VM"
+  description = "SSH key for Jenkins VM (should be fetched from Key Vault)"
   type        = string
   sensitive   = true
 }
 
-# Security Variables
-variable "key_vault_name" {
-  description = "Name of the Key Vault"
-  type        = string
-  default     = "aks-jenkins-keyvault"
-}
-
-# Monitoring Variables
+# Security / Monitoring
 variable "log_analytics_workspace_name" {
   description = "Name of the Log Analytics workspace"
   type        = string
   default     = "aks-jenkins-analytics"
+}
+
+variable "environment" {
+  description = "Deployment environment name"
+  type        = string
+  default     = "dev"
+}
+
+variable "app_gateway_id" {
+  description = "Application Gateway resource ID"
+  type        = string
+}
+
+variable "app_gateway_subnet_cidr" {
+  description = "CIDR block for the Application Gateway subnet"
+  type        = string
+  default     = "10.0.6.0/24"
+}
+
+variable "acr_id" {
+  description = "Azure Container Registry resource ID"
+  type        = string
+}
+
+variable "project_name" {
+  description = "Project name"
+  type        = string
+  default     = "aks-jenkins-github"
 }
