@@ -202,11 +202,6 @@ variable "log_analytics_workspace_name" {
   default     = "aks-jenkins-analytics"
 }
 
-variable "environment" {
-  description = "Deployment environment name"
-  type        = string
-  default     = "dev"
-}
 
 variable "app_gateway_id" {
   description = "Application Gateway resource ID"
@@ -224,8 +219,4 @@ variable "acr_id" {
   type        = string
 }
 
-variable "project_name" {
-  description = "Project name"
-  type        = string
-  default     = "aks-jenkins-github"
-}
+
