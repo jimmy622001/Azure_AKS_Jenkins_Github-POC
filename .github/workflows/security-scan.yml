@@ -44,7 +44,7 @@ jobs:
             --severity medium,high,critical
 
       - name: Upload scan results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports
 
